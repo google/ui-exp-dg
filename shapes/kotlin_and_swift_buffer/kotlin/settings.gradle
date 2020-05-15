@@ -1,0 +1,3 @@
+rootProject.name='kotlin_and_swift'
+include ':app'
+include ':SharedCode'

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "D7D37325-01D9-4933-89D9-FDC7DA4DA9F1"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.AddressBreakpoint">
+         <BreakpointContent
+            uuid = "0993B67F-09FE-4F69-AE71-2B62B04211CE"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            symbolName = "*0x10589cb51">
+            <Locations>
+               <Location
+                  uuid = "0993B67F-09FE-4F69-AE71-2B62B04211CE - 6908aa60cc4ea425"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "objc2kotlin.76"
+                  moduleName = "SharedCode"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/ianh/dev/kotlin_and_swift/kotlin/SharedCode/src/iosMain/kotlin/%3Ccompiler-generated%3E"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1"
+                  endingLineNumber = "1"
+                  offsetFromSymbolStart = "209">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
