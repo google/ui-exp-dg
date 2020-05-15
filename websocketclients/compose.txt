@@ -1,0 +1,196 @@
+// Copyright 2020 Google LLC. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+package com.example.myapplication
+
+import android.os.Bundle
+import android.os.Looper
+import android.os.Handler
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.*
+import androidx.compose.frames.ModelList
+import androidx.compose.frames.modelListOf
+import androidx.lifecycle.LiveData
+import androidx.ui.core.Modifier
+import androidx.ui.core.setContent
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextField
+import androidx.ui.foundation.TextFieldValue
+import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.padding
+import androidx.ui.material.*
+import androidx.ui.tooling.preview.Preview
+import androidx.ui.unit.dp
+import okhttp3.*
+import okio.ByteString
+import java.util.concurrent.TimeUnit
+
+data class TreeplateResponse(val message: String) {
+    companion object {
+        private var lastId: Int = 0
+        private fun getNextId(): Int {
+            lastId += 1;
+            return lastId;
+        }
+    }
+    val id: Int = TreeplateResponse.getNextId()
+}
+
+class MainActivity : AppCompatActivity() {
+    private val connection: MutableState<CommsConnection?> = mutableStateOf(null)
+
+    private val value: MutableState<String> = mutableStateOf("hello")
+    private val pattern: MutableState<String> = mutableStateOf("h?l?o")
+
+    private val responses: ModelList<TreeplateResponse> = ModelList()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MaterialTheme {
+                Column {
+                    FilledTextField(
+                        value = value.value,
+                        onValueChange = { userValue: String ->
+                            value.value = userValue
+                        },
+                        label = { Text("Value") },
+                        modifier = Modifier.padding(8.0.dp)
+                    )
+                    FilledTextField(
+                        value = pattern.value,
+                        onValueChange = { userValue: String ->
+                            pattern.value = userValue
+                        },
+                        label = { Text("Pattern") },
+                        modifier = Modifier.padding(8.0.dp)
+                    )
+                    Greeting(connection.value, value.value, pattern.value)
+                    if (responses.isNotEmpty()) {
+                        //val response: TreeplateResponse = responses.first()
+                        AlertDialog(
+                            onCloseRequest = { },
+                            title = { Text("Message ${responses.first().id} from server") },
+                            text = { Text(responses.first().message) },
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        responses.removeAt(0)
+                                    }
+                                ) { Text("Dismiss") }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        val uiThreadHandler = Handler(Looper.getMainLooper())
+        connection.value = CommsConnection { uiThreadHandler.post { responses.add(TreeplateResponse(it)) } }
+// equivalent ways to write that:
+//        connection.value = CommsConnection() { responses.value.add(it) }
+//        connection.value = CommsConnection() { it: String -> responses.value.add(it) }
+//        connection.value = CommsConnection(fun (it: String) { responses.value.add(it) })
+        connection.value!!.connect()
+    }
+}
+
+private enum class CommsStatus { idle, connecting, connected, disconnecting }
+
+private class CommsConnection(val onResponse: (String) -> Unit) : WebSocketListener() {
+    var socket: WebSocket? = null
+    var status: CommsStatus = CommsStatus.idle
+
+    fun connect() {
+        if (status == CommsStatus.idle) {
+            OkHttpClient.Builder().build().newWebSocket(
+                Request.Builder().url("ws://treeplate.example.com:8001").build(),
+                this
+            )
+            status = CommsStatus.connecting
+        }
+    }
+
+    fun disconnect() {
+        if (status == CommsStatus.connected) {
+            socket!!.close(NORMAL_CLOSURE_STATUS, null)
+            socket = null
+            status = CommsStatus.disconnecting
+        }
+    }
+
+    override fun onOpen(webSocket: WebSocket, response: Response) {
+        socket = webSocket
+        status = CommsStatus.connected
+    }
+
+    fun send(message: String) {
+        if (status == CommsStatus.connected) {
+            socket!!.send(message);
+        }
+    }
+
+    override fun onMessage(webSocket: WebSocket?, text: String?) {
+        output("Websocket received: \"" + text!! + "\"")
+        onResponse(text)
+    }
+
+    override fun onMessage(webSocket: WebSocket?, bytes: ByteString?) {
+        output("Websocket received: 0x" + bytes!!.hex())
+    }
+
+    override fun onClosing(webSocket: WebSocket?, code: Int, reason: String?) {
+        output("WebSocket closing: $code $reason")
+        disconnect()
+    }
+
+    override fun onClosed(webSocket: WebSocket, code: Int, reason: String?) {
+        output("WebSocket closed: $code $reason")
+        status = CommsStatus.idle
+        socket = null
+        connect()
+    }
+
+    override fun onFailure(webSocket: WebSocket, t: Throwable?, response: Response?) {
+        output("WebSocket error: " + t?.message)
+        status = CommsStatus.idle
+        socket = null
+        connect()
+    }
+
+    companion object {
+        private val NORMAL_CLOSURE_STATUS = 1000
+    }
+
+    private fun output(txt: String) {
+        Log.v("WSS", txt)
+    }
+}
+
+@Composable
+private fun Greeting(connection: CommsConnection?, userValue: String, patternValue: String) {
+    Card(
+        modifier = Modifier.padding(24.0.dp),
+        elevation = 4.0.dp
+    ) {
+        Button(
+            onClick = {
+                connection!!.send("$patternValue,$userValue")
+            },
+            enabled = connection != null,
+            modifier = Modifier.padding(12.0.dp)
+        ) {
+            Text(text = "Test '$userValue' against '$patternValue'")
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultPreview() {
+    MaterialTheme {
+        //Greeting("Android"[])
+    }
+}
