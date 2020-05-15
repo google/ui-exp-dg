@@ -1,0 +1,183 @@
+// Copyright 2020 Google LLC. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class TreeplateResponse {
+  TreeplateResponse(this.message);
+  static int lastId = 0;
+  static int getNextId() {
+    lastId += 1;
+    return lastId;
+  }
+
+  final int id = getNextId();
+  final String message;
+}
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key key, this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  TextEditingController _value, _pattern;
+  CommsConnection connection;
+
+  final List<TreeplateResponse> responses = <TreeplateResponse>[];
+
+  bool _showingDialog = false;
+
+  void initState() {
+    super.initState();
+    _value = TextEditingController(text: 'hello');
+    _pattern = TextEditingController(text: 'h?l?o');
+    connection = CommsConnection((String message) async {
+      responses.add(TreeplateResponse(message));
+      if (!_showingDialog) _showNextDialog();
+    });
+  }
+
+  Future<void> _showNextDialog() async {
+    _showingDialog = true;
+    while (responses.isNotEmpty && mounted) {
+      final TreeplateResponse response = responses.first;
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Message ${response.id} from server'),
+            content: Text(response.message),
+            actions: [
+              FlatButton(
+                onPressed: () {
+                  responses.removeAt(0);
+                  Navigator.pop(context);
+                },
+                child: Text('Dismiss'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+    _showingDialog = false;
+  }
+
+  void dispose() {
+    _value.dispose();
+    _pattern.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Column(
+        children: <Widget>[
+          TextField(
+            controller: _value,
+          ),
+          TextField(
+            controller: _pattern,
+          ),
+          Greeting(
+            connection: connection,
+            userValue: _value.text,
+            patternValue: _pattern.text,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CommsConnection {
+  CommsConnection(this.onResponse) {
+    connect();
+  }
+  final void Function(String message) onResponse;
+
+  WebSocket _webSocket;
+
+  Future<void> connect() async {
+    while (true) {
+      try {
+        _webSocket = null;
+        _webSocket =
+            await WebSocket.connect('ws://treeplate.example.com:8001');
+        await for (Object message in _webSocket) {
+          if (message is String) onResponse(message);
+        }
+      } catch (e) {
+        print('${e.runtimeType}: $e');
+      }
+    }
+  }
+
+  void send(String message) {
+    _webSocket?.add(message);
+    _webSocket?.add(message);
+    _webSocket?.add(message);
+  }
+
+  void dispose() {
+    _webSocket?.close();
+  }
+}
+
+class Greeting extends StatelessWidget {
+  Greeting({
+    Key key,
+    this.connection,
+    this.userValue,
+    this.patternValue,
+  }) : super(key: key);
+
+  final CommsConnection connection;
+  final String userValue;
+  final String patternValue;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: RaisedButton(
+          onPressed: () {
+            connection.send('flutter,$patternValue,$userValue');
+          },
+          child: Text("Test '$userValue' against '$patternValue'"),
+        ),
+      ),
+    );
+  }
+}

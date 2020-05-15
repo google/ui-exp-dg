@@ -1,0 +1,205 @@
+// Copyright 2020 Google LLC. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import SwiftUI
+
+struct TreeplateResponse: Identifiable {
+    static var lastId: Int = 0
+    static func getNextId() -> Int {
+        lastId += 1
+        return lastId
+    }
+    let id: Int = getNextId()
+    let message: String
+}
+
+class List<T>: ObservableObject {
+    private var data: Array<T> = [];
+    func append(_ element: T) -> Void {
+        data.append(element)
+        objectWillChange.send()
+    }
+    func remove(at index: Int) -> Void {
+        data.remove(at: index)
+        objectWillChange.send()
+    }
+    var first: T? {
+        get {
+            return data.first
+        }
+    }
+    var count: Int {
+        get {
+            return data.count
+        }
+    }
+}
+
+struct ContentView: View {
+
+    @ObservedObject private var responses: List<TreeplateResponse> = List<TreeplateResponse>()
+    @ObservedObject private var connection: CommsConnection
+    @State private var value: String = "hello"
+    @State private var pattern: String = "h?l?o"
+
+    init() {
+        connection = CommsConnection()
+        connection.onResponse = handleResponse
+    }
+
+    private func handleResponse(response: String) {
+        DispatchQueue.main.async {
+            self.responses.append(TreeplateResponse(message: response))
+        }
+        print("we now have \(responses.count) responses");
+    }
+
+    var body: some View {
+        let response: Binding<TreeplateResponse?> = Binding<TreeplateResponse?>(
+            get: {
+                return self.responses.first
+            },
+            set: { newValue in
+                assert(newValue == nil)
+                assert(self.responses.count > 0)
+                self.responses.remove(at: 0)
+            }
+        )
+        return VStack {
+            TextField("Value", text: $value)
+            TextField("Pattern", text: $pattern)
+            Greeting(connection, value, pattern)
+        }.alert(item: response) { response in
+            Alert(
+                title: Text("Message \(response.id) from server"),
+                message: Text(response.message)
+            )
+        }
+        .accentColor(.orange)
+        .buttonStyle(NeumorphicButtonStyle(bgColor: Color.gray.opacity(0.2)))
+        .background(Rectangle().fill(Color.green))
+    }
+}
+
+struct Greeting: View {
+    private let connection: CommsConnection
+    private let value: String
+    private let pattern: String
+
+    init(_ connection: CommsConnection, _ value: String, _ pattern: String) {
+        self.connection = connection
+        self.value = value
+        self.pattern = pattern
+    }
+
+    var body: some View {
+        Button("Hmm. \(value) vs \(pattern)") {
+            self.connection.send("swiftui,\(self.pattern),\(self.value)");
+            self.connection.send("swiftui,\(self.pattern),\(self.value)");
+            self.connection.send("swiftui,\(self.pattern),\(self.value)");
+            self.connection.send("swiftui,\(self.pattern),\(self.value)");
+            self.connection.send("swiftui,\(self.pattern),\(self.value)");
+        }
+    }
+}
+
+struct MyButtonStyle: ButtonStyle {
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+//            .foregroundColor(configuration.isPressed ? .red : .accentColor)
+//            .background(configuration.isPressed ? LinearGradient(gradient: Gradient(colors: [Color("DarkGreen"), Color("LightGreen")]), startPoint: .leading, endPoint: .trailing) : nil)
+//            .animation(.easeInOut(duration: 1.0))
+            .cornerRadius(40)
+            .padding(20)
+        .background(LinearGradient(gradient: Gradient(colors: [Color("DarkGreen"), Color("LightGreen")]), startPoint: .leading, endPoint: .trailing))
+
+    }
+}
+
+struct NeumorphicButtonStyle: ButtonStyle {
+    var bgColor: Color
+
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .padding(20)
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .shadow(color: .white, radius: configuration.isPressed ? 7: 10, x: configuration.isPressed ? -5: -15, y: configuration.isPressed ? -5: -15)
+                        .shadow(color: .black, radius: configuration.isPressed ? 7: 10, x: configuration.isPressed ? 5: 15, y: configuration.isPressed ? 5: 15)
+                        .blendMode(.overlay)
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(bgColor)
+
+                }
+        )
+            .scaleEffect(configuration.isPressed ? 0.95: 1)
+            .foregroundColor(.primary)
+            .animation(.spring())
+    }
+}
+
+class CommsConnection : ObservableObject {
+
+    private let urlSession = URLSession(configuration: .default)
+    private var webSocketTask: URLSessionWebSocketTask?
+
+    private let baseURL = URL(string: "ws://treeplate.example.com:8001")!
+
+    typealias ResponseHandler = (String) -> Void
+
+    var onResponse: ResponseHandler?
+
+    init() {
+        connect()
+    }
+
+    private func connect() {
+        webSocketTask = urlSession.webSocketTask(with: baseURL)
+        webSocketTask!.resume()
+        eventLoop()
+    }
+
+    private func eventLoop() {
+        webSocketTask?.receive {[weak self] result in
+            switch result {
+            case .failure(let error):
+                self?.handleError(error)
+                return
+            case .success(.string(let message)):
+                print("Received: \(message)")
+                self?.onResponse?(message)
+            case .success(.data(_)):
+                break
+            case .success(_):
+                break
+            }
+            self?.eventLoop()
+        }
+    }
+
+    private func handleError(_ error: Error) {
+        print("WebSocket error: \(error)")
+        webSocketTask?.cancel()
+        connect()
+    }
+
+    func send(_ message: String) {
+        print("sending: \(message)")
+        webSocketTask?.send(URLSessionWebSocketTask.Message.string(message)) { [weak self] error in
+            if (error != nil) {
+                self?.handleError(error!)
+            }
+        }
+    }
+}
+
+
+// MARK: PREVIEWS
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
