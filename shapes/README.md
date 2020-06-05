@@ -40,9 +40,9 @@ is drawn to CoreGraphics.
 ### Performance
 
 These have not been tested on a real device. On a simulator in debug mode (which isn't a valid comparison point 
-but may provide a general guide as to relative performance), the UIKit approach is fastest (~60ms per frame), 
-followed by the Kotlin + Swift "direct" case (~130ms), followed by the Kotlin + Swift using the buffer (~320ms), 
-followed by Flutter (~400ms). It is likely that these numbers are highly misleading, however.
+but may provide a general guide as to relative performance), the UIKit approach is fastest (~320ms per frame), 
+followed by Flutter and the Kotlin + Swift "direct" case (both ~400ms), followed by the Kotlin + Swift using the 
+buffer (~575ms). It is likely that these numbers are highly misleading, however.
 
 ### Ergonomics
 

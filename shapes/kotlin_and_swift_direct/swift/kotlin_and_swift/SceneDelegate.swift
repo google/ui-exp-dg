@@ -72,7 +72,7 @@ class MyView: UIView {
         print("total swift time: \(String(format: "%.1f", 1000 * (timeAtEnd - timeAfterKotlin)))ms")
         print("total frame time: \(String(format: "%.1f", 1000 * (timeAtEnd - timeAtStart)))ms")
         print("--")
-        let timeAtStart: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+        timeAtStart = CFAbsoluteTimeGetCurrent()
     }
 
     func paintLayer(_ context: CGContext, _ layer: Layer) {

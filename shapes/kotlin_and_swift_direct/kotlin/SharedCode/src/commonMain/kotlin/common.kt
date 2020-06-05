@@ -12,71 +12,23 @@ import kotlin.random.nextUInt
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
-enum class SerializableClassIdentifier { Paint, Circle, Rectangle, Transform, DisplayList, PaintingLayer }
-
 data class Rect(val x: Double, val y: Double, val w: Double, val h: Double) {}
 
 enum class PaintingStyle { fill, stroke }
 
-class BufferWriter(var _buffer: UIntArray) {
-    private var index: Int = 0
-    val currentSize: Int get() = index * 4
-    fun writeUInt(value: UInt) {
-        _buffer[index] = value
-        index += 1;
-    }
-
-    fun writeInt(value: Int) {
-        _buffer[index] = value.toUInt()
-        index += 1;
-    }
-
-    fun writeLong(value: Long) {
-        _buffer[index] = (value and 0xFFFF_FFFFL).toUInt()
-        _buffer[index + 1] = ((value shr 32) and 0xFFFF_FFFFL).toUInt()
-        index += 2;
-    }
-
-    fun writeDouble(value: Double) {
-        writeLong(value.toBits())
-    }
-
-    fun writeClassIdentifier(value: SerializableClassIdentifier) {
-        writeInt(value.ordinal)
-    }
-}
-
-abstract class Serializable {
-    abstract fun write(buffer: BufferWriter): Unit
-}
-
 class Paint(
     val color: UInt = 0x00_000000u,
     val style: PaintingStyle = PaintingStyle.fill
-) : Serializable() {
-    override fun write(buffer: BufferWriter): Unit { // 12 bytes
-        buffer.writeClassIdentifier(SerializableClassIdentifier.Paint)
-        buffer.writeUInt(color)
-        buffer.writeInt(style.ordinal)
-    }
-}
+)
 
-abstract class DrawOperation : Serializable() {}
+abstract class DrawOperation {}
 
 class Circle(
     val x: Double,
     val y: Double,
     val radius: Double,
     val paint: Paint
-) : DrawOperation() {
-    override fun write(buffer: BufferWriter): Unit { // 40 bytes
-        buffer.writeClassIdentifier(SerializableClassIdentifier.Circle)
-        buffer.writeDouble(x)
-        buffer.writeDouble(y)
-        buffer.writeDouble(radius)
-        paint.write(buffer)
-    }
-}
+) : DrawOperation()
 
 class Rectangle(
     val x: Double,
@@ -84,16 +36,7 @@ class Rectangle(
     val w: Double,
     val h: Double,
     val paint: Paint
-) : DrawOperation() {
-    override fun write(buffer: BufferWriter): Unit { // 48 bytes
-        buffer.writeClassIdentifier(SerializableClassIdentifier.Rectangle)
-        buffer.writeDouble(x)
-        buffer.writeDouble(y)
-        buffer.writeDouble(w)
-        buffer.writeDouble(h)
-        paint.write(buffer)
-    }
-}
+) : DrawOperation()
 
 // | a11 a12 a13 a14 |
 // | a21 a22 a23 a24 |
@@ -169,55 +112,19 @@ class Transform(
             )
         }
     }
-
-    override fun write(buffer: BufferWriter): Unit { // 128 bytes plus child
-        buffer.writeClassIdentifier(SerializableClassIdentifier.Transform)
-        buffer.writeDouble(a11)
-        buffer.writeDouble(a12)
-        buffer.writeDouble(a13)
-        buffer.writeDouble(a14)
-        buffer.writeDouble(a21)
-        buffer.writeDouble(a22)
-        buffer.writeDouble(a23)
-        buffer.writeDouble(a24)
-        buffer.writeDouble(a31)
-        buffer.writeDouble(a32)
-        buffer.writeDouble(a33)
-        buffer.writeDouble(a34)
-        buffer.writeDouble(a41)
-        buffer.writeDouble(a42)
-        buffer.writeDouble(a43)
-        buffer.writeDouble(a44)
-        child.write(buffer)
-    }
 }
 
 class DisplayList(
     val commands: List<DrawOperation>
-) : Serializable() {
-    override fun write(buffer: BufferWriter): Unit { // 8 bytes plus children
-        buffer.writeClassIdentifier(SerializableClassIdentifier.DisplayList)
-        buffer.writeInt(commands.count())
-        commands.map { it.write(buffer) }
-    }
-}
+)
 
-abstract class Layer : Serializable() {}
+abstract class Layer {}
 
 open class PaintingLayer(
     val displayList: DisplayList
-) : Layer() {
-    override fun write(buffer: BufferWriter): Unit { // 4 bytes plus display list
-        buffer.writeClassIdentifier(SerializableClassIdentifier.PaintingLayer)
-        displayList.write(buffer)
-    }
-}
+) : Layer()
 
 var t: Double = 0.0;
-
-expect class Serialized constructor(root: Serializable) {
-    fun release()
-}
 
 @ExperimentalTime
 @ExperimentalUnsignedTypes
