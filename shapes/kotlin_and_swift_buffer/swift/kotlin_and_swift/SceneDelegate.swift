@@ -279,13 +279,18 @@ class MyView: UIView {
     var angle: CGFloat = 0.0
 
     func setup() {
-        Timer.scheduledTimer(withTimeInterval: 1/60, repeats: true) { [weak self] timer in
-            if (self != nil) {
-                self!.angle += 0.01
-                self!.setNeedsDisplay()
-            }
-        }
+        CADisplayLink(
+            target: self,
+            selector: #selector(handleTimer)
+        ).add(to: RunLoop.current, forMode: RunLoop.Mode.default)
     }
+
+    @objc func handleTimer(displayLink: CADisplayLink) {
+        angle += 0.01
+        setNeedsDisplay()
+    }
+
+    var timeAtStart: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
 
     override func draw(_ rect: CGRect) {
         let context = UIGraphicsGetCurrentContext()!
@@ -297,10 +302,11 @@ class MyView: UIView {
             w: Double(rect.width),
             h: Double(rect.height)
         )
-        let timeAtStart: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+        let timeBeforeKotlin: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+        print("total render time: \(String(format: "%.1f", 1000 * (timeBeforeKotlin - timeAtStart)))ms")
         let bytes = CommonKt.paint(rect: kRect);
         let timeAfterKotlin: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
-        print("total kotlin time: \(String(format: "%.1f", 1000 * (timeAfterKotlin - timeAtStart)))ms")
+        print("total kotlin time: \(String(format: "%.1f", 1000 * (timeAfterKotlin - timeBeforeKotlin)))ms")
         let byteArray: Array<UInt32> = Array(UnsafeBufferPointer(start: bytes.buffer.bindMemory(to: UInt32.self, capacity: Int(bytes.length) / MemoryLayout<UInt32>.size), count: Int(bytes.length) / MemoryLayout<UInt32>.size))
         let layer = deserialize(buffer: BufferReader(buffer: byteArray)) as! Layer
         let timeAfterDeserialize: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
@@ -311,6 +317,7 @@ class MyView: UIView {
         print("total paint time: \(String(format: "%.1f", 1000 * (timeAtEnd - timeAfterDeserialize)))ms")
         print("total frame time: \(String(format: "%.1f", 1000 * (timeAtEnd - timeAtStart)))ms")
         print("---")
+        let timeAtStart: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
     }
 
     func paintLayer(_ context: CGContext, _ layer: Layer) {
