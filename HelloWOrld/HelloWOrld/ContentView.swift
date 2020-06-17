@@ -1,10 +1,6 @@
-//
-//  ContentView.swift
-//  HelloWOrld
-//
-//  Created by Jim Sproch on 6/9/20.
-//  Copyright © 2020 Jim Sproch. All rights reserved.
-//
+// Copyright 2020 Google LLC. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 import SwiftUI
 
