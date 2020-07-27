@@ -39,19 +39,24 @@ class MyView: UIView {
     var angle: Double = 0.0
 
     func setup() {
-        Timer.scheduledTimer(withTimeInterval: 1/60, repeats: true) { [weak self] timer in
-            if (self != nil) {
-                self!.angle += 0.01
-                self!.setNeedsDisplay()
-            }
-        }
+        CADisplayLink(
+            target: self,
+            selector: #selector(handleTimer)
+        ).add(to: RunLoop.current, forMode: RunLoop.Mode.default)
     }
 
+    @objc func handleTimer(displayLink: CADisplayLink) {
+        angle += 0.01
+        setNeedsDisplay()
+    }
+
+    var timeAtStart: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+
     override func draw(_ rect: CGRect) {
+        let timeAtDrawStart: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
         let context = UIGraphicsGetCurrentContext()!
         context.setFillColor(UIColor.black.cgColor)
         context.fill(rect)
-        let timeAtStart: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
         srand48(0)
         for _ in 0..<10000 {
           switch nextInt(2) {
@@ -80,8 +85,11 @@ class MyView: UIView {
           }
         }
         let timeAtEnd: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+        print("total render time: \(String(format: "%.1f", 1000 * (timeAtDrawStart - timeAtStart)))ms")
+        print("total swift time: \(String(format: "%.1f", 1000 * (timeAtEnd - timeAtDrawStart)))ms")
         print("total frame time: \(String(format: "%.1f", 1000 * (timeAtEnd - timeAtStart)))ms")
         print("--")
+        timeAtStart = CFAbsoluteTimeGetCurrent()
     }
 
     func nextInt(_ max: Int) -> Int {
