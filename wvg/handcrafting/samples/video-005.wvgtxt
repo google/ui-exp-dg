@@ -1,0 +1,33 @@
+metadata { 256.0 192.0 }
+draw { identity @rect 0 color 0x7c7e7cff }
+parameter { 0x1706057F } shape { "M162,207 L271,186 L195,-16" } draw { 0 0 0 0xFFD00000 }
+parameter { 0xe9f5f87F } shape { "M-16,179 L140,-11 L16,-8" } draw { 1 1 0 0xFFD00001 }
+parameter { 0x0004277F } shape { "M97,96 L221,21 L214,111" } draw { 2 2 0 0xFFD00002 }
+parameter { 0x89d9ff7F } shape { "M262,-6 L271,104 L164,-16" } draw { 3 3 0 0xFFD00003 }
+parameter { 0x94bdc57F } shape { "M204,104 L164,207 L59,104" } draw { 4 4 0 0xFFD00004 }
+parameter { 0xd4813d7F } shape { "M-16,36 L123,195 L-16,194" } draw { 5 5 0 0xFFD00005 }
+parameter { 0x0000007F } shape { "M164,19 L95,77 L138,13" } draw { 6 6 0 0xFFD00006 }
+parameter { 0x3911197F } shape { "M50,143 L115,185 L-4,165" } draw { 7 7 0 0xFFD00007 }
+parameter { 0x003d817F } shape { "M86,109 L53,76 L90,24" } draw { 8 8 0 0xFFD00008 }
+parameter { 0xfcc69c7F } shape { "M31,161 L80,105 L-16,28" } draw { 9 9 0 0xFFD00009 }
+parameter { 0x9eddff7F } shape { "M201,-7 L31,-16 L2,60" } draw { 10 10 0 0xFFD0000A }
+parameter { 0x0120397F } shape { "M132,85 L240,-5 L173,130" } draw { 11 11 0 0xFFD0000B }
+parameter { 0xfdbc8f7F } shape { "M193,127 L231,94 L250,124" } draw { 12 12 0 0xFFD0000C }
+parameter { 0x4306007F } shape { "M251,207 L237,83 L271,97" } draw { 13 13 0 0xFFD0000D }
+parameter { 0x80bfee7F } shape { "M117,134 L88,177 L90,28" } draw { 14 14 0 0xFFD0000E }
+parameter { 0x0000007F } shape { "M127,38 L172,68 L223,55" } draw { 15 15 0 0xFFD0000F }
+parameter { 0x190e167F } shape { "M201,204 L161,101 L271,192" } draw { 16 16 0 0xFFD00010 }
+parameter { 0xf6aa717F } shape { "M201,164 L226,141 L261,152" } draw { 17 17 0 0xFFD00011 }
+parameter { 0xe036007F } shape { "M-16,-2 L29,-16 L-6,58" } draw { 18 18 0 0xFFD00012 }
+parameter { 0xffe4ba7F } shape { "M146,45 L118,75 L148,76" } draw { 19 19 0 0xFFD00013 }
+parameter { 0x0000127F } shape { "M118,44 L107,109 L100,51" } draw { 20 20 0 0xFFD00014 }
+parameter { 0xbdd5e47F } shape { "M271,41 L253,-16 L211,89" } draw { 21 21 0 0xFFD00015 }
+parameter { 0x5200007F } shape { "M87,127 L83,150 L55,111" } draw { 22 22 0 0xFFD00016 }
+parameter { 0x00b3a17F } shape { "M124,185 L135,207 L194,176" } draw { 23 23 0 0xFFD00017 }
+parameter { 0x2200007F } shape { "M59,151 L33,124 L52,169" } draw { 24 24 0 0xFFD00018 }
+parameter { 0xbecbcb7F } shape { "M149,42 L183,-16 L178,47" } draw { 25 25 0 0xFFD00019 }
+parameter { 0xffd4b17F } shape { "M211,119 L184,100 L182,124" } draw { 26 26 0 0xFFD0001A }
+parameter { 0xffe1397F } shape { "M73,207 L140,180 L-13,187" } draw { 27 27 0 0xFFD0001B }
+parameter { 0xa7b0ad7F } shape { "M122,181 L200,182 L93,82" } draw { 28 28 0 0xFFD0001C }
+parameter { 0x0000007F } shape { "M271,168 L170,185 L221,207" } draw { 29 29 0 0xFFD0001D }
+rect: shape { "H256 V192 H0" }

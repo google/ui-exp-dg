@@ -1,0 +1,37 @@
+metadata { 100.0 100.0 }
+
+shape: shape {
+  "M50,30c9-22 42-24 48,0c5,40-40,40-48,65c-8-25-54-25-48-65c 6-24 39-22 48,0 z"
+}
+
+rainbowColors: gradient {
+  0.0 0.1666
+  0.1666 0.3333
+  0.3333 0.5
+  0.5 0.6666
+  0.6666 0.8333
+  0.8333 1.0;
+  0xFF0000FF 0xFF0000FF
+  0xFF9900FF 0xFF9900FF
+  0xFFFF00FF 0xFFFF00FF
+  0x009900FF 0x009900FF
+  0x000099FF 0x000099FF
+  0x990099FF 0x990099FF
+}
+
+z: expression { 100.0 end }
+r45: expression { 0.70710678118 end }
+r45n: expression { @r45 negate end }
+zr45: expression { @r45 @z * end }
+zr45n: expression { @r45 @z * negate end }
+
+rotate45: matrix {
+  @zr45 @zr45 0.0 0.0
+  @zr45n @zr45 0.0 0.0
+  0.0 0.0 1.0 0.0
+  15.0 0.0 0.0 1.0
+}
+
+rainbow: paint { linear @rainbowColors decal @rotate45 }
+
+draw { @shape:matrix @shape 0 @rainbow }

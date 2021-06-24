@@ -1,0 +1,26 @@
+metadata { 100.0 50.0 }
+
+x: parameter { 0.0 }
+
+shiftx: expression { @x 100.0 * }
+
+top: matrix {
+  1.0 0.0 0.0 0.0
+  0.0 1.0 0.0 0.0
+  0.0 0.0 1.0 0.0
+  @shiftx 22.5 0.0 1.0
+}
+
+bottom: matrix {
+  -1.0 0.0 0.0 0.0
+  0.0 -1.0 0.0 0.0
+  0.0 0.0 1.0 0.0
+  @shiftx 27.5 0.0 1.0
+}
+
+track: shape { "M 0.0 20.0 h 100.0 v 10.0 h -100.0 z" }
+arrow: shape { "l -10 -10 h 20 z" }
+
+draw { @track:matrix @track 0 color 0x999999FF }
+draw { @top @arrow 0 color 0x0033CCFF }
+draw { @bottom @arrow 0 color 0x0033CCFF }

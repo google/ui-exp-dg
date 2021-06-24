@@ -1,0 +1,29 @@
+metadata { 100.0 75.0 }
+
+identity: matrix {
+  1.0 0.0 0.0 0.0
+  0.0 1.0 0.0 0.0
+  0.0 0.0 1.0 0.0
+  0.0 0.0 0.0 1.0
+}
+
+shape: shape {
+  100.0 50.0 90.0 20.0 1.0;
+  10.0 30.0 20.0 80.0 1.0;
+}
+
+green: gradient {
+  0.0 0.7 1.0;
+  0x009911FF 0x11AA11FF 0x119900FF
+}
+
+full: matrix {
+  100.0 0.0 0.0 0.0
+  -50.0 100.0 0.0 0.0
+  0.0 0.0 1.0 0.0
+  0.0 0.0 0.0 1.0
+}
+
+paint: paint { linear @green 0x00 @full }
+
+draw { @identity @shape 0 @paint }

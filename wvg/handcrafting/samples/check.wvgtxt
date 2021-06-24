@@ -1,0 +1,19 @@
+metadata { 100.0 100.0 0 0 0 0 0 0 0 0 0 0 0xFFFF0000 0x0000FFFF }
+raw 1 { 1 2 3 4 5 }
+raw 3 { 2 3 4 5 6 }
+raw 9 { 100 }
+raw 12 { 200 }
+raw 19 { 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 }
+raw 38 { 55 }
+raw 49 { 0 0 0 0 0xFFFFFFFF }
+raw 49 { 0 0 0 0xFFFFFFFF }
+raw 49 { 0 0 0xFFFFFFFF }
+raw 49 { 0 0xFFFFFFFF }
+raw 49 { 0xFFFFFFFF }
+raw 50 { 0 0xFFFFFFFF }
+raw 57 { 0 0 0xFFFFFFFF }
+raw 59 { identity @check 0 color 0xFF0000FF }
+raw 62 { 0xFFFFFFFF 0 0 0xFFFFFFFF 0xFFFF00FF }
+
+check: shape { "M30,76q6-14,13-26q6-12,14-23q8-12,13-17q3-4,6-6q1-1,5-2q8-1,12-1q1,0,1,1q0,1-1,2q-13,11-27,33q-14,21-24,44q-4,9-5,11q-1,2-9,2q-5,0-6-1q-1-1-5-6q-5-8-12-15q-3-4-3-6q0-2,4-5q3-2,6-2q3,0,8,3q5,4,10,14z" }
+draw { @check:matrix @check 0 color 0x009900FF }

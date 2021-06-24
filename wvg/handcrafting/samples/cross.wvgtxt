@@ -1,0 +1,24 @@
+metadata { 5.0 5.0 }
+
+white: parameter { 0xFFFFEEFF }
+red: parameter { 0xFF0000FF }
+
+centerCross: matrix {
+  1.0 0.0 0.0 0.0
+  0.0 1.0 0.0 0.0
+  0.0 0.0 1.0 0.0
+  2.5 2.5 0.0 1.0
+}
+
+shape: shape {
+  "M2 1 h1 v1 h1 v1 h-1 v1 h-1 v-1 h-1 v-1 h1 z"
+}
+
+redToWhite: gradient {
+  0.0 1.0;
+  @red @white
+}
+
+radialWhiteRed: paint { radial @redToWhite mirror @centerCross }
+
+draw { @shape:matrix @shape 0 @radialWhiteRed }
