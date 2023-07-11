@@ -1,0 +1,8 @@
+metadata { 20.0 20.0 }
+
+rect: shape { "M 10 10" "h10 v10 h-10" }
+circle: shape { "M 10 6" "q 6 0 6 6 * 0.5 t -6 6 * 0.5 t -6 -6 * 0.5 t 6 -6 * 0.5" }
+shape { "M 10 8" "q -4 0 -4 4 * 0.5 t 4 4 * 0.5 t 4 -4 * 0.5 t -4 -4 * 0.5" }
+
+draw { @rect:matrix @rect 0 color 0x00FF00FF }
+draw { @circle:matrix @circle 1 color 0x0000FFFF }

@@ -83,7 +83,7 @@ class _Shapes extends CustomPainter {
           canvas.rotate(t * (r.nextDouble() * 2.0 - 1.0));
           canvas.translate(-(x + w / 2), -(y + h / 2));
           canvas.drawRect(
-            Rect.fromLTWH(x, y, w, h),            
+            Rect.fromLTWH(x, y, w, h),
             Paint()
               ..color = Color(r.nextInt(0xFFFFFFFF))
           );
